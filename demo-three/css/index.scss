@@ -1,0 +1,252 @@
+@import "../../_normalize";
+@import "../../_clearfix";
+
+$fs_ms: 'Microsoft Yahei';
+$th_bgc: #4FBA8F;
+$tr_even_bgc: #E2E3E2;
+$bd_c: #f2f2f2;
+$bd_c_ccc: #ccc;
+
+$btn_c: #42b983;
+$btn_success_bgc: #00CC66;
+
+*{
+    box-sizing: border-box;
+}
+body{
+    width: 600px;
+    font: 12px/2 $fs_ms;
+    margin: 200px auto;
+}
+input:disabled{
+    background-color: $tr_even_bgc;
+}
+
+.container{
+    width: 100%;
+    padding: 15px 60px 10px 15px;
+    border: 1px solid $bd_c_ccc;
+    label{
+        input{
+            width: 280px;
+            border: 1px solid $bd_c_ccc;
+            margin-left: 15px;
+        }
+    }
+}
+.btn{
+    font: 12px/1.4 $fs_ms;
+    padding: 2px 6px;
+    color: #fff;
+    background-color: $th_bgc;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+    &:hover{
+        background-color: darken($th_bgc, 5%);
+    }
+    &:active{
+        background-color: darken($th_bgc, 15%);
+    }
+}
+
+table{
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    td{
+        padding: 0;
+    }
+}
+
+table{
+    border: 1px solid $bd_c;
+    thead>tr{
+        color: #fff;
+        background-color: $th_bgc;
+    }
+    tr{
+        text-align: center;
+        border: 1px solid $bd_c;
+    }
+    tbody tr:nth-child(even){
+        background-color: $tr_even_bgc;
+    }
+    th+th,
+    td+td{
+        border-left: 1px solid $bd_c;
+        border-right: 1px solid $bd_c;
+    }
+    td{
+        width: 25%;
+    }
+}
+
+
+
+
+
+.dialog{
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    z-index: 999;
+    margin-left: -200px;
+    width: 400px;
+    visibility: hidden;
+    backface-visibility: hidden;
+    perspective: 800px;
+    .close{
+        position: absolute;
+        top: 9px;
+        right: 10px;
+        font: 16px/18px $fs_ms;
+        padding: 0 3px;
+        color: #fff;
+        background-color: rgba(255, 0, 0, .5);
+        border-radius: 100% 100%;
+        cursor: pointer;
+        transition: transform 0.5s ease-out;
+        &:hover{
+            transform: rotateZ(306deg);
+        }
+    }
+    .dialog-content{
+        transform-style: preserve-3d;
+        padding-bottom: 1px;
+        background-color: #fff;
+        opacity: 0;
+        box-shadow: 0px 0px 10px 1px rgba(0,0,0,.3);
+        transform: rotateY(-45deg);
+        transition: all .4s ease-in-out;
+    }
+    .dialog-cont{
+        height: 130px;
+        padding: 20px;
+        div{
+            margin: 8px 0;
+        }
+        label{
+            display: block;
+            padding-left: 60px;
+            @include clearfix;
+        }
+        span{
+            float: left;
+            width: 45px;
+            text-align: left;
+        }
+        input{
+            float: left;
+            width: 200px;
+            padding-left: 5px;
+            border: 1px solid $bd_c_ccc;
+        }
+    }
+    .dialog-header{
+        height: 36px;
+        background-color: $btn_c;
+        h1{
+            font: 16px/36px $fs_ms;
+            text-align: center;
+        }
+    }
+    .dialog-footer{
+        padding: 10px 0;
+        border-top: 1px dotted $bd_c_ccc;
+        margin: 20px;
+        .btn{
+            position: absolute;
+            right: 15px;
+            bottom: 8px;
+        }
+    }
+
+}
+
+.dialog-overlay{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, .3);
+    visibility: hidden;
+    opacity: 0;
+    transition: all .6s ease-in;
+}
+
+.dialog-active{
+    visibility: visible;
+    .dialog-content{
+        opacity: 1;
+        transform: rotateY(0);
+    }
+    & ~ .dialog-overlay{
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@mixin btn-pos($var_left, $var_bgc) {
+    position: absolute;
+    top: 50%;
+    left: $var_left;
+    z-index: 1;
+    transform: translate3d( -50%, 0, 0);
+    padding: 2px 4px;
+    border: 1px solid $var_bgc;
+    color: #fff;
+    background-color: $var_bgc;
+    border-radius: 4px;
+    transition: background-color .4s ease-out, color .4s ease-in;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+    &:hover{
+        color: $var_bgc;
+        background-color: #fff;
+    }
+    &:active{
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    }
+}
+@mixin alertDialog($head_bgc) {
+    .dialog{
+        .dialog-header{
+            background-color: $head_bgc;
+        }
+        .btn-close{
+            border: 1px solid $head_bgc;
+            background-color: $head_bgc;
+            &:hover{
+                color: $head_bgc;
+                background-color: #fff;
+            }
+        }
+    }
+}
+.btn-off,
+.btn-save{
+    font: 12px/1.5 $fs_ms;
+    bottom: 8px;
+}
+.btn-close,
+.btn-off{
+    @include btn-pos(initial, $btn_c);
+    top: initial;
+    right: 15px;
+    bottom: 8px;
+}
+.btn-save{
+    @include btn-pos(initial, $btn_c);
+    top: initial;
+    right: 65px;
+}
+.app .btn-open{
+    @include btn-pos(45%, $btn_success_bgc);
+}
+.app .btn-close{
+    @include btn-pos(initial, $btn_success_bgc);
+}

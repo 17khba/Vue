@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CRUD</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <label class="form-group">Search <input v-model="searchKey" type="text"></label>
+        </div>
+        <grid-component :tit="listTit" :items="listItem" :search-val="searchKey"></grid-component>
+    </div>
+    <template id="gridComponent">
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="item in tit">{{item.name | capitalize}}</th>
+                    <th>删除</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(index, item) in items | filterBy searchVal in 'name'">
+                    <td v-for="obj in tit">
+                        <span v-if="obj.isKey"><a @click="editItemDialog(item.name)" href="javascript:;">{{item[obj.name]}}</a></span>
+                        <span v-else>{{item[obj.name]}}</span>
+                    </td>
+                    <td><button class="btn" @click="deleteItem(index)">删除</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="btn-group">
+            <button class="btn" @click="openNewItem('Create new item')">Create</button>
+        </div>
+        <dialog-component :mode="mode" :title="title" :fields="tit" :item="item" @create-item="createItem" @update-item="updateItem"></dialog-component>
+    </template>
+    <template id="dialogComponent">
+        <div class="dialogs">
+            <div class="dialog" :class="{'dialog-active': show}">
+                <div class="dialog-content">
+                    <i class="close" @click="close">×</i>
+                    <header class="dialog-header">
+                        <h1 class="dialog-tit">{{title}}</h1>
+                    </header>
+                    <div class="dialog-cont">
+                        <div v-for="field in fields">
+                            <label>
+                                <span>{{field.name}}</span>
+                                <select v-if="field.datasource" v-model="item[field.name]" name="" id="">
+                                    <option v-for="opt in field.datasource" :value="opt">{{opt}}</option>
+                                </select>
+                                <input v-else v-model="item[field.name]" :type="field.isNum ? 'number' : 'text'" :disabled="mode === 2 && field.isKey">
+                            </label>
+                        </div>
+                    </div>
+                    <footer class="dialog-footer">
+                        <label></label>
+                        <button class="btn-save" @click="save">Save</button>
+                        <button class="btn-off" @click="close">Close</button>
+                    </footer>
+                </div>
+            </div>
+            <div class="dialog-overlay"></div>
+        </div>
+    </template>
+    <script src="../vue.js"></script>
+    <script>
+        const modalDialog = Vue.extend({
+            template: '#dialogComponent',
+            data: function () {
+                return {
+                    show: false             // 对话框默认不显示
+                }
+            },
+            props: ['mode', 'title', 'fields', 'item'],
+            methods: {
+                close: function () {
+                    this.show = false;
+                },
+                save: function () {
+                    if (this.mode === 1) {
+                        // 派发事件，用于向上触发绑定在对话框上的createItem方法
+                        this.$dispatch('create-item');
+                    }
+                    if (this.mode === 2) {
+                        this.$dispatch('update-item');
+                    }
+                }
+            },
+            events: {
+                showDialog: function (show) {
+                    this.show = show;
+                }
+            }
+        });
+
+        Vue.component('grid-component', {
+            template: '#gridComponent',
+            data: function () {
+                return {
+                    mode: 0,            // 模式选择，1为新增，2为修改
+                    item: {},           // 用来存储新建的条目对象
+                    title: ''           // 对话框的标题
+                }
+            },
+            props: ['tit', 'items', 'searchVal'],
+            ready: function () {
+                for (let i = 0; i < this.tit.length; i++) {
+                    if (this.tit[i].isKey) {
+                        this.keyTit = this.tit[i]['name'];
+                        console.log(this.keyTit);
+                        break;
+                    }
+                }
+            },
+            methods: {
+                /**
+                 * [editItemDialog description]
+                 * @param  {string} key [对应条目的name值]
+                 * @return {[type]}     [description]
+                 */
+                editItemDialog: function (key) {
+                    const currentItem = this.findItemByKey(key);
+                    this.title = `Edit item - ${key}`;        // 修改对话框的title
+                    this.mode = 2;                            // 修改当前状态为修改
+                    this.item = this.initItemCont(currentItem);    // 将当前编辑的条目拷贝到this.item
+                    this.$broadcast('showDialog', true);
+                },
+                /**
+                 * [initItemCont 将item的值设为当前编辑条目的值]
+                 * @param  {[obj]} obj [当前修改的条目]
+                 * @return {[obj]}     [description]
+                 */
+                initItemCont: function (obj) {
+                    let c = {};
+                    for (const i in obj) {
+                        if (obj.hasOwnProperty(i)) {
+                            if (typeof obj[i] == 'object') {
+                                c[i] = Array.isArray(obj[i]) ? [] : {};
+                                deepCopy(obj[i], c[i]);        // 深拷贝
+                            } else {
+                                c[i] = obj[i];
+                            }
+                        }
+                    }
+                    return c;
+                },
+                findItemByKey: function (key) {
+                    for (let i = 0; i < this.items.length; i++) {
+                        if (this.items[i].name === key){
+                            return this.items[i];
+                        }
+                    }
+                },
+                updateItem: function () {
+                    for (let i = 0; i < this.items.length; i++) {
+                        if (this.items[i].name === this.item.name) {
+                            for (let j in this.item) {
+                                this.items[i][j] = this.item[j];
+                            }
+                            break;
+                        }
+                    }
+                    this.$broadcast('showDialog', false);
+                    this.item = {};
+                },
+                openNewItem: function (title) {
+                    this.title = title;        // 设置标题
+                    this.mode = 1;             // 将模式转换为创建模式
+                    this.item = {};            // 初始化this.item
+                    this.$broadcast('showDialog', true);        // 广播事件：showDialog是弹出框组件的一个方法，传入参数true表示显示对话框
+                },
+                itemIsExists: function () {
+                    for (let i = 0; i < this.items.length; i++) {
+                        if (this.items[i].name.toLowerCase() === this.item.name) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                createItem: function () {
+                    if (!this.item.name) {
+                        alert('请将内容字段填写完整!');
+                        return;
+                    }
+                    if (!this.itemIsExists()) {
+                        this.items.push(this.item);        // 将item追加到items对象中
+                        this.$broadcast('showDialog', false);
+                        this.item = {};
+                    } else {
+                        alert(`name ${this.item.name} is already exists!`);
+                    }
+
+                },
+                deleteItem: function (index) {
+                    this.items.splice(index, 1);
+                }
+            },
+            components: {
+                'dialog-component': modalDialog
+            }
+        });
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                searchKey: '',
+                listTit: [
+                    {
+                        name: 'name',
+                        isKey: true
+                    },
+                    {
+                        name: 'age',
+                        isNum: true
+                    },
+                    {
+                        name: 'sex',
+                        datasource: ['Male', 'Female']
+                    }
+                ],
+                listItem: [
+                    {
+                        name: 'Monkey D Luffy',
+                        age: 19,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Rorona Zoro',
+                        age: 21,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Nami',
+                        age: 20,
+                        sex: 'Female'
+                    },
+                    {
+                        name: 'Usopp',
+                        age: 19,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Sanji',
+                        age: 21,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'TonyTony Chopper',
+                        age: 15,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Nico Robin',
+                        age: 30,
+                        sex: 'Female'
+                    },
+                    {
+                        name: 'Franky',
+                        age: 36,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Bluke',
+                        age: 90,
+                        sex: 'Male'
+                    }
+                ]
+            }
+        })
+    </script>
+</body>
+</html>
