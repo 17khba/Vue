@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>第一个小实例</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <!--这是我们的view-->
+    <div id="app">
+        <fieldset>
+            <legend>Create new person</legend>
+            <div class="form-group">
+                <label>
+                    <span>Name:</span><input v-model="newPerson.name" type="text">
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <span>Age:</span>
+                    <input v-model="newPerson.age" type="text">
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <span>Sex:</span>
+                    <select v-model="newPerson.sex" name="sex" id="sex">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </label>
+            </div>
+            <a @click="create" class="btn" href="javascript:;">创建</a>
+        </fieldset>
+        <table>
+            <thead>
+                <tr>
+                    <td>name</td>
+                    <td>age</td>
+                    <td>sex</td>
+                    <td>delete</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in people">
+                    <td>{{item.name}}</td>
+                    <td>{{item.age}}</td>
+                    <td>{{item.sex}}</td>
+                    <td @click="remove($index)"><a class="btn" href="javascript:;">删除</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="../vue.js"></script>
+    <script>
+        let egMethod = {
+            remove: function(index){
+                this.people.splice(index, 1);
+            },
+            create: function(){
+                this.people.push(this.newPerson);
+                this.newPerson = {
+                    name: '',
+                    age: 0,
+                    sex: 'Male'
+                }
+
+            }
+        };
+
+        /* ---这是我们的model--- */
+        let egData = {
+            newPerson: {
+                name: '',
+                age: 0,
+                sex: 'Male'
+            },
+            people: [
+                {
+                    name: 'Jack',
+                    age: 21,
+                    sex: 'Male'
+                },
+                {
+                    name: 'Bill',
+                    age: 22,
+                    sex: 'Female'
+                },
+                {
+                    name: 'Tracy',
+                    age: 23,
+                    sex: 'Female'
+                },
+                {
+                    name: 'Chris',
+                    age: 24,
+                    sex: 'Male'
+                }
+            ]
+        };
+
+        /* ---这是我们的viewmodel，负责连接view和model--- */
+        const obj = new Vue({
+            el: '#app',            // 指向view，将vue实例挂载到app对象上
+            data: egData,           // 指向model，这里指向的是egData对象
+            methods: egMethod
+        });
+    </script>
+</body>
+</html>

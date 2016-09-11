@@ -1,0 +1,79 @@
+@import "../../_normalize";
+@import "../../_clearfix";
+
+$fs_ms: 'Microsoft Yahei';
+$th_bgc: #4FBA8F;
+$tr_even_bgc: #E2E3E2;
+$bd_c: #f2f2f2;
+$bd_c_ccc: #ccc;
+
+*{
+    box-sizing: border-box;
+}
+body{
+    width: 600px;
+    font: 12px/1.8 $fs_ms;
+    margin: 200px auto;
+}
+
+fieldset{
+    width: 100%;
+    padding: 15px 60px;
+    border: 1px solid $bd_c_ccc;
+    margin: 0;
+    .form-group{
+        margin: 10px 0;
+    }
+    label{
+        span{
+            float: left;
+            width: 50px;
+        }
+        input{
+            padding-left: 5px;
+            border: 1px solid $bd_c_ccc;
+        }
+        @include clearfix;
+    }
+}
+.btn{
+    padding: 2px 6px;
+    color: #fff;
+    background-color: $th_bgc;
+    border-radius: 4px;
+    &:hover{
+        background-color: darken($th_bgc, 5%);
+    }
+    &:active{
+        background-color: darken($th_bgc, 15%);
+    }
+}
+
+table{
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    td{
+        padding: 0;
+    }
+}
+
+table{
+    border: 1px solid $bd_c;
+    thead>tr{
+        color: #fff;
+        background-color: $th_bgc;
+    }
+    tr{
+        text-align: center;
+        border: 1px solid $bd_c;
+    }
+    tbody tr:nth-child(even){
+        background-color: $tr_even_bgc;
+    }
+    th+th,
+    td+td{
+        border-left: 1px solid $bd_c;
+        border-right: 1px solid $bd_c;
+    }
+}
