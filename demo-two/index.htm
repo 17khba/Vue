@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>过滤筛选</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div id="app">
+        <input class="search" type="text" v-model="searchVal">
+        <demo-two :tit="listTit" :items="listItem" :filt-key="searchVal"></demo-two>
+    </div>
+    <template id="search-template">
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="item in tit">{{ item | capitalize }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in items | filterBy filtKey in 'name'">
+                    <td v-for="obj in tit">{{item[obj]}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+    <script src="../vue.js"></script>
+    <script>
+        Vue.component('demo-two', {
+            template: '#search-template',
+            props: {
+                tit: Array,
+                items: Array,
+                filtKey: String
+            }
+        });
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                searchVal: '',
+                listTit: ['name', 'age', 'sex'],
+                listItem: [
+                    {
+                        name: 'Monkey D Luffy',
+                        age: 19,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Rorona Zoro',
+                        age: 21,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Nami',
+                        age: 20,
+                        sex: 'Female'
+                    },
+                    {
+                        name: 'Usopp',
+                        age: 19,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Sanji',
+                        age: 21,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'TonyTony Chopper',
+                        age: 15,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Nico Robin',
+                        age: 30,
+                        sex: 'Female'
+                    },
+                    {
+                        name: 'Franky',
+                        age: 36,
+                        sex: 'Male'
+                    },
+                    {
+                        name: 'Bluke',
+                        age: 90,
+                        sex: 'Male'
+                    }
+                ]
+            }
+        });
+    </script>
+</body>
+</html>
